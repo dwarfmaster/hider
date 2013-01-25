@@ -8,42 +8,23 @@ UnHider::UnHider(boost::filesystem::path dest, boost::filesystem::path img)
 
 bool UnHider::process()
 {
-	unsigned long pos = 0;
-	bool end = false;
 	std::string str("");
+	size_t length = m_pict.width() * m_pict.height();
 
-	for(Uint32 x = 0; x < m_pict.width(); ++x)
+	for(size_t pos = 0; pos < length; ++pos)
 	{
-		for(Uint32 y = 0; y < m_pict.height(); ++y)
-		{
-			for(int i = 0; i < 3; ++i)
-			{
-				int dec = pos % 4;
-				dec *= 2;
-
-				char c = m_pict.getPart(x, y, i);
-				c <<= dec;
-				str.back() |= c;
-
-				++pos;
-
-				size_t pos = str.find("__EOF__");
-				if( pos != std::string::npos )
-				{
-					i = 4;
-					y = m_pict.height();
-					x = m_pict.width();
-					end = true;
-
-					str = str.substr(0, pos);
-				}
-			}
-		}
+		int spos = pos % 4;
+		if( spos == 0 )
+			str += char(0);
+		char c = m_pict.getPart(pos);
+		c <<= (spos * 2);
+		str.back() |= c;
 	}
 
 	// TODO enregistrer dans fichier
 	std::cout << str << std::endl;
-	return end;
+
+	return true;
 }
 
 
