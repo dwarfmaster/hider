@@ -11,11 +11,13 @@ class Options
 
 		Options(char argc, char *argv[]);
 
-		boost::filesystem::path getPath() const;
+		boost::filesystem::path getTextPath() const;
+		boost::filesystem::path getImgPath() const;
 		Action getAct() const;
 
 	private:
-		boost::filesystem::path m_path;
+		boost::filesystem::path m_text;
+		boost::filesystem::path m_img;
 		Action m_act;
 };
 
