@@ -5,3 +5,8 @@
 *.o
 *.prog
 
+# Tmp files
+*~
+.*
+*.swp
+
