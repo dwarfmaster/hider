@@ -25,15 +25,15 @@ namespace fs = boost::filesystem;
 	m_pixBeg = m_data + m_beg;
 
 	// Raw size
-	m_raw = size_t(m_data[30]) + size_t(m_data[31]) * 256 + size_t(m_data[32]) * 256 * 256 + size_t(m_data[33]) * 256 * 256 * 256;
+	m_raw = size_t(m_data[34]) + size_t(m_data[35]) * 256 + size_t(m_data[36]) * 256 * 256 + size_t(m_data[37]) * 256 * 256 * 256;
 
 	// Size
-	m_width = size_t(m_data[18]) + size_t(m_data[19]) * 256;
-	m_height = size_t(m_data[20]) + size_t(m_data[21]) * 256;
+	m_width = size_t(m_data[18]) + size_t(m_data[19]) * 256 + size_t(m_data[20]) * 256 * 256 + size_t(m_data[21]) * 256 * 256 * 256;
+	m_height = size_t(m_data[22]) + size_t(m_data[23]) * 256 + size_t(m_data[24]) * 256 * 256 + size_t(m_data[25]) * 256 * 256 * 256;
 	std::cout << "Size : (" << m_width << ";" << m_height << ")." << std::endl;
 
 	// Check bpp
-	int bpp = int(m_data[24]) + int(m_data[25]) * 256;
+	int bpp = int(m_data[28]) + int(m_data[29]) * 256;
 	if( bpp != 24 )
 		throw std::string("Profondeur de l'image invalide : seule les images 24 bits sont autorisées.");
 }
