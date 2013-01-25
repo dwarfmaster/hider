@@ -2,6 +2,7 @@
 #include <iostream>
 #include "options.hpp"
 #include "hider.hpp"
+#include "unhider.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -21,8 +22,8 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			std::cerr << "Cette options n'a pas encore été implémentée." << std::endl;
-			end = 1;
+			UnHider unhider( opts.getTextPath(), opts.getImgPath() );
+			unhider.process();
 		}
 	}
 	catch(const std::string& str)
