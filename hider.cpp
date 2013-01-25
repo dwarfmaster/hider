@@ -19,39 +19,21 @@ Hider::Hider(boost::filesystem::path src, boost::filesystem::path img)
 
 bool Hider::process()
 {
-	unsigned long pos = 0;
-	bool end = false;
-	for(Uint32 x = 0; x < m_pict.width(); ++x)
+	for(size_t pos = 0; pos < m_src.size(); ++pos)
 	{
-		for(Uint32 y = 0; y < m_pict.height(); ++y)
+		for(size_t spos = 0; spos < 4; ++spos)
 		{
-			for(int i = 0; i < 3; ++i)
-			{
-				size_t cpos = pos / 4; // Position du caractère
-				if( cpos >= m_src.size() ) // On sort de la boucle en cas de fin
-				{
-					i = 4;
-					y = m_pict.height();
-					x = m_pict.width();
-					end = true;
-				}
-				else
-				{
-					int dec = pos % 4; // Le bloc de bit
-					dec *= 2;
+			int dec = spos * 2;
+			char c = m_src[pos];
+			c &= (3 << dec);
+			c >>= dec;
 
-					char c = m_src[cpos];
-					c &= (3 << dec); // 0b11 << dec
-					c >>= dec;
-
-					m_pict.setPart(x, y, i, c);
-					++pos;
-				}
-			}
+			m_pict.setPart(pos * 4 + spos, c);
 		}
 	}
+
 	m_pict.save();
-	return end;
+	return true;
 }
 
 
