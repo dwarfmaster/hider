@@ -63,6 +63,22 @@ void Picture::save()
 	SDL_SaveBMP(m_img, m_path.string().c_str());
 }
 
+SDL_PixelFormat* Picture::format() const
+{
+	return m_img->format;
+}
+
+Uint32 Picture::width() const
+{
+	return m_img->w;
+}
+
+Uint32 Picture::height() const
+{
+	return m_img->h;
+}
+
+
 Uint32 getpixel(SDL_Surface *surface, int x, int y)
 {
 	int bpp = surface->format->BytesPerPixel;

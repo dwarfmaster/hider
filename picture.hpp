@@ -16,6 +16,10 @@ class Picture
 
 		void save();
 
+		SDL_PixelFormat* format() const;
+		Uint32 width() const;
+		Uint32 height() const;
+
 	private:
 		SDL_Surface* m_img;
 		const boost::filesystem::path& m_path;
