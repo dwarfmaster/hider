@@ -1,141 +1,89 @@
 
 #include "picture.hpp"
-#include <SDL_image.h>
+#include <boost/filesystem/fstream.hpp>
 
-void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
-Uint32 getpixel(SDL_Surface *surface, int x, int y);
+namespace fs = boost::filesystem;
 
-	Picture::Picture(const boost::filesystem::path& path)
-: m_path(path)
+	Picture::Picture(const fs::path& path)
+: m_path(path), m_data(NULL), m_pixBeg(NULL), m_length(0), m_raw(0), m_beg(0), m_width(0), m_height(0)
 {
-	m_img = IMG_Load(path.string().c_str());
-	if( m_img == NULL )
-		throw std::string("Erreur au chargement de l'image.");
+	fs::ifstream ifs;
+	ifs.open(path, std::ios::binary);
+
+	// Compute length
+	ifs.seekg(0, std::ios::end);
+	m_length = ifs.tellg();
+	ifs.seekg(0, std::ios::beg);
+
+	// Read
+	m_data = new char[m_length];
+	ifs.read(m_data, m_length);
+	ifs.close();
+
+	// Beginning pixel data
+	m_beg = size_t(m_data[10]) + size_t(m_data[11]) * 256 + size_t(m_data[12]) * 256 * 256 + size_t(m_data[13]) * 256 * 256 * 256;
+	m_pixBeg = m_data + m_beg;
+
+	// Raw size
+	m_raw = size_t(m_data[30]) + size_t(m_data[31]) * 256 + size_t(m_data[32]) * 256 * 256 + size_t(m_data[33]) * 256 * 256 * 256;
+
+	// Size
+	m_width = size_t(m_data[18]) + size_t(m_data[19]) * 256;
+	m_height = size_t(m_data[20]) + size_t(m_data[21]) * 256;
+	std::cout << "Size : (" << m_width << ";" << m_height << ")." << std::endl;
+
+	// Check bpp
+	int bpp = int(m_data[24]) + int(m_data[25]) * 256;
+	if( bpp != 24 )
+		throw std::string("Profondeur de l'image invalide : seule les images 24 bits sont autorisées.");
 }
 
 Picture::~Picture()
 {
-	SDL_FreeSurface( m_img );
+	delete[] m_data;
 }
 
-char Picture::getPart(Uint32 x, Uint32 y, Uint8 p) const
+char Picture::getPart(size_t pos) const
 {
-	Uint32 pix = getpixel(m_img, x, y);
-	Uint8 r, g, b;
-	SDL_GetRGB(pix, m_img->format, &r, &g, &b);
-
-	if( p == 0 )
-		return r & 3; // 3 == 0b00000011
-	else if( p == 1 )
-		return b & 3; // 3 == 0b00000011
-	else
-		return g & 3; // 3 == 0b00000011
+	return (m_pixBeg[ idToPos(pos) ] & 3); // 3 == 0x11
 }
 
-void Picture::setPart(Uint32 x, Uint32 y, Uint8 p, char value)
+void Picture::setPart(size_t pos, char value)
 {
-	Uint32 pix = getpixel(m_img, x, y);
-	Uint8 r, g, b;
-	SDL_GetRGB(pix, m_img->format, &r, &g, &b);
+	pos = idToPos(pos);
+	char c = m_pixBeg[pos];
 
-	value &= 3; // Juste une sécurité
-	if( p == 0 )
-	{
-		r &= 252; // 252 == 0b11111100
-		r |= value;
-	}
-	else if( p == 1 )
-	{
-		g &= 252; // 252 == 0b11111100
-		g |= value;
-	}
-	else
-	{
-		b &= 252; // 252 == 0b11111100
-		b |= value;
-	}
-
-	putpixel(m_img, x, y, SDL_MapRGB(m_img->format, r, g, b));
+	c &= ~char(3); // ~3 == 0x11111100
+	value &= 3; // juste par sécurité
+	c |= value;
+	m_pixBeg[pos] = c;
 }
 
 void Picture::save()
 {
-	SDL_SaveBMP(m_img, m_path.string().c_str());
+	fs::ofstream ofs;
+	ofs.open(m_path, std::ios::binary);
+
+	// On réécrit les pixels
+	ofs.seekp(m_beg);
+	ofs.write(m_pixBeg, m_length - m_beg);
+
+	ofs.close();
 }
 
-SDL_PixelFormat* Picture::format() const
+uint32_t Picture::width() const
 {
-	return m_img->format;
+	return m_width;
 }
 
-Uint32 Picture::width() const
+uint32_t Picture::height() const
 {
-	return m_img->w;
+	return m_height;
 }
 
-Uint32 Picture::height() const
+size_t Picture::idToPos(size_t id) const
 {
-	return m_img->h;
-}
-
-
-Uint32 getpixel(SDL_Surface *surface, int x, int y)
-{
-	int bpp = surface->format->BytesPerPixel;
-	/* Here p is the address to the pixel we want to retrieve */
-	Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
-
-	switch(bpp) {
-		case 1:
-			return *p;
-
-		case 2:
-			return *(Uint16 *)p;
-
-		case 3:
-			if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-				return p[0] << 16 | p[1] << 8 | p[2];
-			else
-				return p[0] | p[1] << 8 | p[2] << 16;
-
-		case 4:
-			return *(Uint32 *)p;
-
-		default:
-			return 0;       /* shouldn't happen, but avoids warnings */
-	}
-}
-
-void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
-{
-	int bpp = surface->format->BytesPerPixel;
-	/* Here p is the address to the pixel we want to set */
-	Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
-
-	switch(bpp) {
-		case 1:
-			*p = pixel;
-			break;
-
-		case 2:
-			*(Uint16 *)p = pixel;
-			break;
-
-		case 3:
-			if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-				p[0] = (pixel >> 16) & 0xff;
-				p[1] = (pixel >> 8) & 0xff;
-				p[2] = pixel & 0xff;
-			} else {
-				p[0] = pixel & 0xff;
-				p[1] = (pixel >> 8) & 0xff;
-				p[2] = (pixel >> 16) & 0xff;
-			}
-			break;
-
-		case 4:
-			*(Uint32 *)p = pixel;
-			break;
-	}
+	int nbPad = id / m_width;
+	return id + m_raw * nbPad;
 }
 
