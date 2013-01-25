@@ -1,7 +1,7 @@
 OBJS=main.o options.o picture.o hider.o unhider.o
 PROG=hider.prog
-CXXFLAGS=-Wall -Wextra `sdl-config --cflags` `pkg-config --cflags SDL_image` --std=c++11 -g
-LDFLAGS=`sdl-config --libs` `pkg-config --libs SDL_image` -lboost_filesystem -lboost_program_options -lboost_system
+CXXFLAGS=-Wall -Wextra --std=c++11 -g
+LDFLAGS=-lboost_filesystem -lboost_program_options -lboost_system
 CC=g++
 
 all : $(PROG)
