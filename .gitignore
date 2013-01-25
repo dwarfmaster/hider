@@ -1,0 +1,7 @@
+# Doc
+*.pdf
+
+# Compiled objects
+*.o
+*.prog
+
