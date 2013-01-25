@@ -50,6 +50,7 @@ bool Hider::process()
 			}
 		}
 	}
+	m_pict.save();
 	return end;
 }
 
