@@ -9,6 +9,7 @@ class Picture
 {
 	public:
 		Picture(const boost::filesystem::path& path);
+		~Picture();
 
 		char getPart(Uint32 x, Uint32 y, Uint8 p) const; // Les deux bits de poid faible du char sont à prendre en compte
 		void setPart(Uint32 x, Uint32 y, Uint8 p, char value);

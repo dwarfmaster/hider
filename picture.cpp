@@ -13,6 +13,11 @@ Uint32 getpixel(SDL_Surface *surface, int x, int y);
 		throw std::string("Erreur au chargement de l'image.");
 }
 
+Picture::~Picture()
+{
+	SDL_FreeSurface( m_img );
+}
+
 char Picture::getPart(Uint32 x, Uint32 y, Uint8 p) const
 {
 	Uint32 pix = getpixel(m_img, x, y);
