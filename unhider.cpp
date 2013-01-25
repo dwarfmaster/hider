@@ -15,11 +15,21 @@ bool UnHider::process()
 	{
 		int spos = pos % 4;
 		if( spos == 0 )
+		{
 			str += char(0);
+			
+			size_t epos = str.find("__EOF__");
+			if( epos != std::string::npos )
+			{
+				str = str.substr(0, epos);
+				goto end;
+			}
+		}
 		char c = m_pict.getPart(pos);
 		c <<= (spos * 2);
 		str.back() |= c;
 	}
+end:
 
 	// TODO enregistrer dans fichier
 	std::cout << str << std::endl;
