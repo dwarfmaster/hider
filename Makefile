@@ -1,4 +1,4 @@
-OBJS=picture.o hider.o unhider.o
+OBJS=picture.o hider.o
 PROG=hider.so
 CXXFLAGS=-Wall -Wextra --std=c++11 -g -fPIC
 LDFLAGS=-lboost_filesystem -lboost_program_options -lboost_system -shared
