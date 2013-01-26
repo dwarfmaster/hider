@@ -2,14 +2,12 @@
 #include "unhider.hpp"
 #include <iostream>
 
-UnHider::UnHider(boost::filesystem::path dest, boost::filesystem::path img)
-	: m_pict(img), m_dest(dest)
-{}
-
-bool UnHider::process()
+bool unhide(boost::filesystem::path dest, boost::filesystem::path img)
 {
+	Picture pict(img);
+
 	std::string str("");
-	size_t length = m_pict.width() * m_pict.height();
+	size_t length = pict.width() * pict.height();
 
 	for(size_t pos = 0; pos < length; ++pos)
 	{
@@ -25,13 +23,13 @@ bool UnHider::process()
 				goto end;
 			}
 		}
-		char c = m_pict.getPart(pos);
+		char c = pict.getPart(pos);
 		c <<= (spos * 2);
 		str.back() |= c;
 	}
 end:
 
-	boost::filesystem::ofstream ofs(m_dest);
+	boost::filesystem::ofstream ofs(dest);
 	ofs << str;
 	ofs.close();
 
