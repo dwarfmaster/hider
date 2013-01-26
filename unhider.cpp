@@ -31,8 +31,9 @@ bool UnHider::process()
 	}
 end:
 
-	// TODO enregistrer dans fichier
-	std::cout << str << std::endl;
+	boost::filesystem::ofstream ofs(m_dest);
+	ofs << str;
+	ofs.close();
 
 	return true;
 }
