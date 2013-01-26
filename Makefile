@@ -1,7 +1,7 @@
-OBJS=main.o options.o picture.o hider.o unhider.o
-PROG=hider.prog
-CXXFLAGS=-Wall -Wextra --std=c++11 -g
-LDFLAGS=-lboost_filesystem -lboost_program_options -lboost_system
+OBJS=picture.o hider.o unhider.o
+PROG=hider.so
+CXXFLAGS=-Wall -Wextra --std=c++11 -g -fPIC
+LDFLAGS=-lboost_filesystem -lboost_program_options -lboost_system -shared
 CC=g++
 
 all : $(PROG)
