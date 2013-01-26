@@ -1,0 +1,12 @@
+prefix=/home/luc
+exec_prefix=${prefix}
+libdir=${exec_prefix}/libs
+includedir=${prefix}/includes
+
+Name: hider
+Description: Librairie allowing you to hide text in a bitmap picture.
+Version: 1.0
+Requires: 
+Libs: -L${libdir} -lhider -lboost_system -lboost_filesystem 
+Cflags: -I${includedir} -std=c++11
+
