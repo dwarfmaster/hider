@@ -3,6 +3,7 @@
 
 # Compiled objects
 *.o
+*.so
 *.prog
 
 # Tmp files
