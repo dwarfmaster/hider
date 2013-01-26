@@ -30,12 +30,9 @@ namespace fs = boost::filesystem;
 	// Size
 	m_width = size_t(m_data[18]) + size_t(m_data[19]) * 256 + size_t(m_data[20]) * 256 * 256 + size_t(m_data[21]) * 256 * 256 * 256;
 	m_height = size_t(m_data[22]) + size_t(m_data[23]) * 256 + size_t(m_data[24]) * 256 * 256 + size_t(m_data[25]) * 256 * 256 * 256;
-	// std::cout << "22 : " << uint32_t(m_data[22]) << " -> " << int(m_data[22]) << " -> " << m_data[22] << " -> " << size_t(0x84) << " -> " << int(0x84) << " -> " << char(0x84) << std::endl;
-	// std::cout << "Size : (" << m_width << ";" << m_height << ")." << std::endl;
 
 	// Check bpp
 	int bpp = int(m_data[28]) + int(m_data[29]) * 256;
-	// std::cout << "Bpp : " << bpp << std::endl;
 	if( bpp != 24 )
 		throw std::string("Profondeur de l'image invalide : seule les images 24 bits sont autorisées.");
 }
