@@ -1,38 +1,73 @@
 
 #include "hider.hpp"
 
+#include <boost/filesystem/fstream.hpp>
+#include "picture.hpp"
+
 namespace fs = boost::filesystem;
 
-Hider::Hider(boost::filesystem::path src, boost::filesystem::path img)
-	: m_pict(img), m_src("")
+bool hide(boost::filesystem::path srcPath, boost::filesystem::path img)
 {
-	fs::ifstream ifs(src); // TODO continue
+	std::string src;
+	fs::ifstream ifs(srcPath);
 	if( !ifs )
 		throw std::string("Erreur : fichier invalide.");
 
 	std::string line;
 	while( std::getline(ifs, line) )
-		m_src += line;
+		src += line;
+	src += "__EOF__";
 
-	m_src += "__EOF__";
-}
+	Picture pict(img);
 
-bool Hider::process()
-{
-	for(size_t pos = 0; pos < m_src.size(); ++pos)
+	for(size_t pos = 0; pos < src.size(); ++pos)
 	{
 		for(size_t spos = 0; spos < 4; ++spos)
 		{
 			int dec = spos * 2;
-			char c = m_src[pos];
+			char c = src[pos];
 			c &= (3 << dec);
 			c >>= dec;
 
-			m_pict.setPart(pos * 4 + spos, c);
+			pict.setPart(pos * 4 + spos, c);
 		}
 	}
 
-	m_pict.save();
+	pict.save();
+	return true;
+}
+
+bool unhide(boost::filesystem::path dest, boost::filesystem::path img)
+{
+	Picture pict(img);
+
+	std::string str("");
+	size_t length = pict.width() * pict.height();
+
+	for(size_t pos = 0; pos < length; ++pos)
+	{
+		int spos = pos % 4;
+		if( spos == 0 )
+		{
+			str += char(0);
+			
+			size_t epos = str.find("__EOF__");
+			if( epos != std::string::npos )
+			{
+				str = str.substr(0, epos);
+				goto end;
+			}
+		}
+		char c = pict.getPart(pos);
+		c <<= (spos * 2);
+		str.back() |= c;
+	}
+end:
+
+	boost::filesystem::ofstream ofs(dest);
+	ofs << str;
+	ofs.close();
+
 	return true;
 }
 
